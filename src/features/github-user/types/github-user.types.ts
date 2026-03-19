@@ -62,6 +62,21 @@ export interface PaginationMeta {
   totalPages: number
 }
 
+export interface UserPageDataState {
+  errorRepositories: string | null
+  errorUser: string | null
+  loadingRepositories: boolean
+  loadingUser: boolean
+  repositories: GitHubRepository[]
+  user: GitHubUser | null
+}
+
+export interface UserPageState {
+  data: UserPageDataState
+  pagination: PaginationMeta
+  query: UserPageQuery
+}
+
 export interface UserRepositoriesResult {
   pagination: PaginationMeta
   repositories: GitHubRepository[]

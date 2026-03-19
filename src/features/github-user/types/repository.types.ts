@@ -63,3 +63,9 @@ export interface GitHubRepositoryDetails extends GitHubRepository {
   permissions: GitHubRepositoryPermissions | null
   subscribersCount: number
 }
+
+export interface RepositoryDetailsState {
+  error: string | null
+  loading: boolean
+  repository: GitHubRepositoryDetails | null
+}
