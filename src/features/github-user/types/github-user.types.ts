@@ -1,4 +1,5 @@
 import type { ApiError } from '../../../shared/utils/api-error'
+import type { GitHubRepository } from './repository.types'
 
 export type RepoSort = 'created' | 'updated' | 'pushed' | 'full_name'
 export type SortDirection = 'asc' | 'desc'
@@ -39,6 +40,11 @@ export interface PaginationMeta {
   hasPreviousPage: boolean
   perPage: number
   totalPages: number
+}
+
+export interface UserRepositoriesResult {
+  pagination: PaginationMeta
+  repositories: GitHubRepository[]
 }
 
 export type GitHubApiError = ApiError
