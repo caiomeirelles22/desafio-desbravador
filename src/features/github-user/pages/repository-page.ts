@@ -7,35 +7,35 @@ export interface RepositoryPageContent {
 
 export function createRepositoryPage(content: RepositoryPageContent): HTMLElement {
   return createPlaceholderPage({
-    eyebrow: 'Repository route',
-    title: `Repository route matched for "${content.owner}/${content.repositoryName}".`,
+    eyebrow: 'Rota do repositorio',
+    title: `Rota do repositorio carregada para "${content.owner}/${content.repositoryName}".`,
     description:
-      'The router is resolving both owner and repository segments before the API layer exists.',
+      'O router esta resolvendo owner e repository antes mesmo de a camada final da pagina de detalhe ser montada.',
     actions: [
       {
         href: `/user/${encodeURIComponent(content.owner)}`,
-        label: 'Back to user route',
+        label: 'Voltar para o usuario',
         variant: 'primary',
       },
       {
         href: '/',
-        label: 'Return home',
+        label: 'Voltar para o inicio',
         variant: 'secondary',
       },
     ],
     details: [
       {
-        title: 'Owner param',
-        description: `Resolved owner param: ${content.owner}.`,
+        title: 'Parametro owner',
+        description: `Parametro owner resolvido: ${content.owner}.`,
       },
       {
-        title: 'Repository param',
-        description: `Resolved repository param: ${content.repositoryName}.`,
+        title: 'Parametro repository',
+        description: `Parametro repository resolvido: ${content.repositoryName}.`,
       },
       {
-        title: 'Future step',
+        title: 'Proxima etapa',
         description:
-          'This page will later fetch repository details independently from the list screen.',
+          'Esta pagina vai buscar os detalhes do repositorio de forma independente da tela de listagem.',
       },
     ],
   })

@@ -17,53 +17,53 @@ export function createUserPage(content: UserPageContent): HTMLElement {
   const query = content.query
 
   return createPlaceholderPage({
-    eyebrow: 'User route',
-    title: `User route matched for "${query.username}".`,
+    eyebrow: 'Rota do usuario',
+    title: `Rota do usuario carregada para "${query.username}".`,
     description:
-      'The user list query is now parsed, normalized and rebuilt from the URL before the page consumes it.',
+      'A query da listagem agora e lida, normalizada e reconstruida a partir da URL antes de a pagina consumir o estado.',
     actions: [
       {
         href: buildUserListRouteWithPatch(query, { page: query.page + 1 }),
-        label: 'Go to next page',
+        label: 'Ir para proxima pagina',
         variant: 'primary',
       },
       {
         href: buildUserListRouteWithPatch(query, { sort: getAlternativeSort(query.sort) }),
-        label: 'Change sort',
+        label: 'Trocar ordenacao',
         variant: 'secondary',
       },
       {
         href: buildUserListRouteWithPatch(query, {
           direction: query.direction === 'asc' ? 'desc' : 'asc',
         }),
-        label: 'Flip direction',
+        label: 'Inverter direcao',
         variant: 'secondary',
       },
       {
         href: buildUserListRouteWithPatch(query, {
           perPage: getAlternativePerPage(query.perPage),
         }),
-        label: 'Change per page',
+        label: 'Trocar por pagina',
         variant: 'secondary',
       },
     ],
     details: [
       {
-        title: 'Path params',
-        description: `Resolved username param: ${query.username}.`,
+        title: 'Parametros da rota',
+        description: `Parametro de username resolvido: ${query.username}.`,
       },
       {
-        title: 'Normalized query',
+        title: 'Query normalizada',
         description: `?${buildUserListQuery(query)}`,
       },
       {
-        title: 'Current controls',
+        title: 'Controles atuais',
         description: `page=${query.page}, perPage=${query.perPage}, sort=${query.sort}, direction=${query.direction}.`,
       },
       {
-        title: 'Navigation rule',
+        title: 'Regra de navegacao',
         description:
-          'Changing sort, direction or perPage resets the page to 1; changing only the page keeps the other params.',
+          'Trocar sort, direction ou perPage reseta a pagina para 1; mudar apenas a pagina preserva os outros parametros.',
       },
     ],
   })

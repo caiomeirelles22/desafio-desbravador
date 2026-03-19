@@ -1,5 +1,7 @@
 import { navigate } from '../../../router/navigation'
+import { isApiError } from '../../../shared/utils/api-error'
 import { debounce } from '../../../shared/utils/debounce'
+import { getUserByUsername } from '../services/github.service'
 import {
   buildUserListRoute,
 } from '../utils/build-user-list-query'
@@ -20,15 +22,15 @@ interface HomeSuggestion {
 
 const HOME_SUGGESTIONS: HomeSuggestion[] = [
   {
-    description: 'GitHub sample account used in most API examples.',
+    description: 'Conta de exemplo usada na maioria dos exemplos da API do GitHub.',
     username: 'octocat',
   },
   {
-    description: 'OpenAI public organization profile.',
+    description: 'Perfil publico da organizacao da OpenAI.',
     username: 'openai',
   },
   {
-    description: 'Vite team account to inspect frontend-oriented repositories.',
+    description: 'Conta do time do Vite para inspecionar repositorios focados em frontend.',
     username: 'vitejs',
   },
 ]
@@ -40,14 +42,14 @@ export function createHomePage(): HTMLElement {
   pageElement.innerHTML = `
     <div class="home-search-panel">
       <div class="home-copy">
-        <span class="section-kicker">Home</span>
-        <h2 class="section-title">Search any GitHub username and jump straight into the user route.</h2>
+        <span class="section-kicker">Inicio</span>
+        <h2 class="section-title">Busque qualquer usuario do GitHub e va direto para a rota do perfil.</h2>
         <p class="section-description">
-          The input below navigates automatically after a short pause and still supports explicit submission with Enter.
+          O campo abaixo valida o usuario antes da navegacao e continua aceitando envio explicito com Enter.
         </p>
       </div>
       <form class="search-form" novalidate>
-        <label class="search-label" for="github-username-input">GitHub username</label>
+        <label class="search-label" for="github-username-input">Nome de usuario do GitHub</label>
         <div class="search-input-row">
           <input
             id="github-username-input"
@@ -60,7 +62,7 @@ export function createHomePage(): HTMLElement {
             spellcheck="false"
             aria-describedby="github-username-feedback"
           />
-          <button class="search-submit" type="submit">Search now</button>
+          <button class="search-submit" type="submit">Buscar agora</button>
         </div>
         <p
           id="github-username-feedback"
@@ -68,11 +70,11 @@ export function createHomePage(): HTMLElement {
           role="status"
           aria-live="polite"
         >
-          Navigation starts automatically after ${DEBOUNCE_DELAY_MS}ms of inactivity.
+          A navegacao comeca automaticamente apos ${DEBOUNCE_DELAY_MS}ms de inatividade.
         </p>
       </form>
       <div class="home-suggestions">
-        <span class="home-suggestions-label">Try one of these:</span>
+        <span class="home-suggestions-label">Tente um destes:</span>
         <div class="home-suggestions-grid">
           ${HOME_SUGGESTIONS.map(createSuggestionMarkup).join('')}
         </div>
@@ -80,21 +82,21 @@ export function createHomePage(): HTMLElement {
     </div>
     <div class="home-insights">
       <article class="home-insight-card">
-        <h3 class="page-card-title">Debounced navigation</h3>
+        <h3 class="page-card-title">Validacao com debounce</h3>
         <p class="page-card-description">
-          Typing pauses for half a second before the app moves to the user page, reducing noisy route changes.
+          A digitacao espera ${DEBOUNCE_DELAY_MS / 1000} segundos antes de o app verificar se o usuario existe.
         </p>
       </article>
       <article class="home-insight-card">
-        <h3 class="page-card-title">Keyboard-friendly flow</h3>
+        <h3 class="page-card-title">Navegacao protegida</h3>
         <p class="page-card-description">
-          Press Enter at any time to bypass the wait and navigate immediately with the same normalized username.
+          A rota muda so depois que o GitHub confirma que o usuario existe, entao nomes invalidos continuam na home.
         </p>
       </article>
       <article class="home-insight-card">
-        <h3 class="page-card-title">Query-ready route</h3>
+        <h3 class="page-card-title">Fluxo amigavel ao teclado</h3>
         <p class="page-card-description">
-          The generated destination already uses the user list route contract that the next screens will consume.
+          Pressione Enter a qualquer momento para pular a espera e validar imediatamente com o mesmo usuario normalizado.
         </p>
       </article>
     </div>
@@ -103,6 +105,7 @@ export function createHomePage(): HTMLElement {
   const searchFormElement = pageElement.querySelector<HTMLFormElement>('form.search-form')
   const inputElement = pageElement.querySelector<HTMLInputElement>('input.search-input')
   const feedbackElement = pageElement.querySelector<HTMLElement>('.search-feedback')
+  let latestSearchToken = 0
 
   if (!searchFormElement || !inputElement || !feedbackElement) {
     throw new Error('Home page search elements were not found.')
@@ -110,33 +113,45 @@ export function createHomePage(): HTMLElement {
 
   const debouncedNavigate = debounce(function handleDebouncedSearch(
     rawUsername: string,
+    searchToken: number,
   ): void {
     if (!pageElement.isConnected) {
       return
     }
 
-    const navigationResult = navigateToUserPage(rawUsername)
-
-    setSearchFeedback(feedbackElement, navigationResult.feedback, navigationResult.isError)
+    startUserSearch(
+      rawUsername,
+      searchToken,
+      inputElement,
+      feedbackElement,
+      pageElement,
+    )
   }, DEBOUNCE_DELAY_MS)
 
   searchFormElement.addEventListener('submit', function handleSubmit(event: SubmitEvent): void {
     event.preventDefault()
     debouncedNavigate.cancel()
+    latestSearchToken += 1
 
-    const navigationResult = navigateToUserPage(inputElement.value)
-
-    setSearchFeedback(feedbackElement, navigationResult.feedback, navigationResult.isError)
+    startUserSearch(
+      inputElement.value,
+      latestSearchToken,
+      inputElement,
+      feedbackElement,
+      pageElement,
+    )
   })
 
   inputElement.addEventListener('input', function handleInput(): void {
     const username = normalizeGitHubUsername(inputElement.value)
 
+    latestSearchToken += 1
+
     if (username === '') {
       debouncedNavigate.cancel()
       setSearchFeedback(
         feedbackElement,
-        `Navigation starts automatically after ${DEBOUNCE_DELAY_MS}ms of inactivity.`,
+        `A navegacao comeca automaticamente apos ${DEBOUNCE_DELAY_MS}ms de inatividade.`,
         false,
       )
       return
@@ -146,7 +161,7 @@ export function createHomePage(): HTMLElement {
       debouncedNavigate.cancel()
       setSearchFeedback(
         feedbackElement,
-        'GitHub usernames can use letters, numbers or single hyphens.',
+        'Usuarios do GitHub podem usar letras, numeros ou hifens simples.',
         true,
       )
       return
@@ -154,10 +169,10 @@ export function createHomePage(): HTMLElement {
 
     setSearchFeedback(
       feedbackElement,
-      `Waiting ${DEBOUNCE_DELAY_MS}ms before opening "${username}". Press Enter to open now.`,
+      `Aguardando ${DEBOUNCE_DELAY_MS}ms antes de verificar "${username}". Pressione Enter para verificar agora.`,
       false,
     )
-    debouncedNavigate(username)
+    debouncedNavigate(username, latestSearchToken)
   })
 
   return pageElement
@@ -172,31 +187,79 @@ function createSuggestionMarkup(suggestion: HomeSuggestion): string {
   `
 }
 
-function navigateToUserPage(rawUsername: string): {
-  feedback: string
-  isError: boolean
-} {
+function startUserSearch(
+  rawUsername: string,
+  searchToken: number,
+  inputElement: HTMLInputElement,
+  feedbackElement: HTMLElement,
+  pageElement: HTMLElement,
+): void {
+  validateAndNavigateToUserPage(
+    rawUsername,
+    searchToken,
+    inputElement,
+    feedbackElement,
+    pageElement,
+  )
+}
+
+async function validateAndNavigateToUserPage(
+  rawUsername: string,
+  searchToken: number,
+  inputElement: HTMLInputElement,
+  feedbackElement: HTMLElement,
+  pageElement: HTMLElement,
+): Promise<void> {
   const username = normalizeGitHubUsername(rawUsername)
 
   if (username === '') {
-    return {
-      feedback: 'Type a GitHub username to start a search.',
-      isError: true,
-    }
+    setSearchFeedback(feedbackElement, 'Digite um nome de usuario do GitHub para iniciar a busca.', true)
+    return
   }
 
   if (!isValidGitHubUsername(username)) {
-    return {
-      feedback: 'Enter a valid GitHub username before navigating.',
-      isError: true,
-    }
+    setSearchFeedback(
+      feedbackElement,
+      'Informe um nome de usuario valido do GitHub antes de navegar.',
+      true,
+    )
+    return
   }
 
-  navigate(buildRouteForUsername(username))
+  setSearchFeedback(
+    feedbackElement,
+    `Verificando se "${username}" existe no GitHub...`,
+    false,
+  )
 
-  return {
-    feedback: `Opening "${username}"...`,
-    isError: false,
+  try {
+    await getUserByUsername(username)
+
+    if (!shouldApplySearchResult(searchToken, inputElement, pageElement, username)) {
+      return
+    }
+
+    navigate(buildRouteForUsername(username))
+    setSearchFeedback(feedbackElement, `Abrindo "${username}"...`, false)
+  } catch (error: unknown) {
+    if (!shouldApplySearchResult(searchToken, inputElement, pageElement, username)) {
+      return
+    }
+
+    if (isApiError(error) && error.status === 404) {
+      setSearchFeedback(
+        feedbackElement,
+        `O usuario "${username}" nao foi encontrado no GitHub. Fique aqui e tente outro nome.`,
+        true,
+      )
+      return
+    }
+
+    setSearchFeedback(
+      feedbackElement,
+      'Nao foi possivel validar esse usuario do GitHub agora. Tente novamente.',
+      true,
+    )
   }
 }
 
@@ -224,6 +287,23 @@ function normalizeGitHubUsername(value: string): string {
 
 function isValidGitHubUsername(username: string): boolean {
   return /^[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i.test(username)
+}
+
+function shouldApplySearchResult(
+  searchToken: number,
+  inputElement: HTMLInputElement,
+  pageElement: HTMLElement,
+  username: string,
+): boolean {
+  if (!pageElement.isConnected) {
+    return false
+  }
+
+  if (normalizeGitHubUsername(inputElement.value) !== username) {
+    return false
+  }
+
+  return searchToken > 0
 }
 
 function setSearchFeedback(

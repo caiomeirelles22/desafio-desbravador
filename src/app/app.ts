@@ -30,16 +30,16 @@ function createAppShell(): AppElements {
             <span class="brand-mark">GH</span>
             <span class="brand-text">GitHub User Explorer</span>
           </a>
-          <nav class="app-nav" aria-label="Primary">
-            <a class="nav-link" href="/" data-link data-nav-route="home">Home</a>
-            <a class="nav-link" href="/favorites" data-link data-nav-route="favorites">Favorites</a>
+          <nav class="app-nav" aria-label="Principal">
+            <a class="nav-link" href="/" data-link data-nav-route="home">Inicio</a>
+            <a class="nav-link" href="/favorites" data-link data-nav-route="favorites">Favoritos</a>
           </nav>
         </div>
         <div class="hero-panel">
-          <span class="hero-eyebrow">Vanilla TypeScript + GitHub API</span>
-          <h1 class="hero-title">Search users and explore repositories with a lightweight client-side app.</h1>
+          <span class="hero-eyebrow">Vanilla TypeScript + API do GitHub</span>
+          <h1 class="hero-title">Busque usuarios e explore repositorios em uma aplicacao client-side leve.</h1>
           <p class="hero-description">
-            The shell, routing and data layer are in place, and each next screen plugs into the same URL-driven navigation flow.
+            O shell, o roteamento e a camada de dados ja estao no lugar, e cada proxima tela entra no mesmo fluxo guiado por URL.
           </p>
         </div>
       </div>

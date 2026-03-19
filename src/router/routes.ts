@@ -89,22 +89,22 @@ export function matchRoute(pathname: string, search: string): MatchedRoute {
 
 export function buildDocumentTitle(context: RouteContext): string {
   if (context.name === 'home') {
-    return 'Home'
+    return 'Inicio'
   }
 
   if (context.name === 'user') {
-    return `User ${context.params.username}`
+    return `Usuario ${context.params.username}`
   }
 
   if (context.name === 'repository') {
-    return `Repository ${context.params.owner}/${context.params.repo}`
+    return `Repositorio ${context.params.owner}/${context.params.repo}`
   }
 
   if (context.name === 'favorites') {
-    return 'Favorites'
+    return 'Favoritos'
   }
 
-  return 'Page not found'
+  return 'Pagina nao encontrada'
 }
 
 function createRouteContext(
@@ -145,67 +145,67 @@ function createRepositoryRoutePage(context: RouteContext): HTMLElement {
 
 function createFavoritesRoutePage(): HTMLElement {
   return createPlaceholderPage({
-    eyebrow: 'Favorites route',
-    title: 'The optional favorites route is already mapped.',
+    eyebrow: 'Rota de favoritos',
+    title: 'A rota opcional de favoritos ja esta mapeada.',
     description:
-      'This route is available early so the navigation structure does not need to change when favorites persistence is introduced.',
+      'Essa rota entra cedo para que a estrutura de navegacao nao precise mudar quando a persistencia de favoritos for ligada.',
     actions: [
       {
         href: '/',
-        label: 'Back to home',
+        label: 'Voltar para o inicio',
         variant: 'primary',
       },
       {
         href: '/user/octocat',
-        label: 'Open sample user route',
+        label: 'Abrir usuario de exemplo',
         variant: 'secondary',
       },
     ],
     details: [
       {
-        title: 'Route pattern',
-        description: 'The favorites page is mapped to "/favorites".',
+        title: 'Padrao da rota',
+        description: 'A pagina de favoritos esta mapeada em "/favorites".',
       },
       {
-        title: 'Reasoning',
+        title: 'Motivacao',
         description:
-          'Keeping this route in place now avoids changing the navigation contract later.',
+          'Manter essa rota agora evita trocar o contrato de navegacao mais tarde.',
       },
       {
-        title: 'Future step',
+        title: 'Proxima etapa',
         description:
-          'The page will later render repositories persisted in local storage.',
+          'A pagina vai renderizar depois os repositorios persistidos no armazenamento local.',
       },
     ],
-    note: 'Favorites persistence will be implemented in the dedicated feature step.',
+    note: 'A persistencia de favoritos sera implementada na etapa dedicada da feature.',
   })
 }
 
 function createNotFoundRoutePage(context: RouteContext): HTMLElement {
   return createPlaceholderPage({
-    eyebrow: 'Fallback route',
-    title: 'No route matched the current URL.',
+    eyebrow: 'Rota de fallback',
+    title: 'Nenhuma rota correspondeu a URL atual.',
     description:
-      'The router falls back to a dedicated not-found screen when the pathname is outside the declared route table.',
+      'O router cai em uma tela dedicada de nao encontrado quando o pathname fica fora da tabela de rotas declarada.',
     actions: [
       {
         href: '/',
-        label: 'Return home',
+        label: 'Voltar para o inicio',
         variant: 'primary',
       },
     ],
     details: [
       {
-        title: 'Requested pathname',
+        title: 'Pathname solicitado',
         description: context.pathname,
       },
       {
         title: 'Status',
-        description: 'A route definition was not found for this location.',
+        description: 'Nao foi encontrada uma definicao de rota para essa localizacao.',
       },
       {
-        title: 'Navigation fallback',
-        description: 'Use the button above to get back to a valid page.',
+        title: 'Fallback de navegacao',
+        description: 'Use o botao acima para voltar a uma pagina valida.',
       },
     ],
   })
