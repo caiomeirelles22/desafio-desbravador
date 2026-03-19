@@ -36,10 +36,10 @@ function createAppShell(): AppElements {
           </nav>
         </div>
         <div class="hero-panel">
-          <span class="hero-eyebrow">Step 3</span>
-          <h1 class="hero-title">History API routing is now wired into the app shell.</h1>
+          <span class="hero-eyebrow">Vanilla TypeScript + GitHub API</span>
+          <h1 class="hero-title">Search users and explore repositories with a lightweight client-side app.</h1>
           <p class="hero-description">
-            The application can resolve static and dynamic routes, react to browser navigation and render into a dedicated outlet.
+            The shell, routing and data layer are in place, and each next screen plugs into the same URL-driven navigation flow.
           </p>
         </div>
       </div>
