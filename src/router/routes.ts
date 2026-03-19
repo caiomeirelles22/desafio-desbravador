@@ -1,6 +1,7 @@
 import { createRepositoryPage } from '../features/github-user/pages/repository-page'
 import { createHomePage } from '../features/github-user/pages/home-page'
 import { createUserPage } from '../features/github-user/pages/user-page'
+import { parseUserListQuery } from '../features/github-user/utils/parse-user-list-query'
 import { createPlaceholderPage } from '../shared/components/placeholder-page'
 import { matchRoutePath, normalizePathname, type RouteParams } from './route-params'
 
@@ -125,9 +126,13 @@ function createHomeRoutePage(): HTMLElement {
 }
 
 function createUserRoutePage(context: RouteContext): HTMLElement {
+  const userListQuery = parseUserListQuery(
+    context.params.username,
+    context.searchParams,
+  )
+
   return createUserPage({
-    username: context.params.username,
-    queryString: context.searchParams.toString(),
+    query: userListQuery,
   })
 }
 
