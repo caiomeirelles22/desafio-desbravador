@@ -1,91 +1,326 @@
+import { navigate } from '../../../router/navigation'
+import { observeElementRemoval } from '../../../shared/utils/dom'
 import {
-  buildUserListQuery,
+  createEmptyStateMarkup,
+} from '../components/empty-state'
+import {
+  createErrorStateMarkup,
+} from '../components/error-state'
+import {
+  createPaginationNavMarkup,
+} from '../components/pagination-nav'
+import {
+  createRepositoryFiltersMarkup,
+} from '../components/repository-filters'
+import {
+  createRepositoryListMarkup,
+} from '../components/repository-list'
+import {
+  createUserProfileCardMarkup,
+} from '../components/user-profile-card'
+import {
+  getUserByUsername,
+  getUserRepositories,
+} from '../services/github.service'
+import {
+  createGitHubUserStore,
+  type GitHubUserStore,
+} from '../stores/github-user.store'
+import type {
+  UserPageQuery,
+  UserPageState,
+} from '../types/github-user.types'
+import {
   buildUserListRouteWithPatch,
 } from '../utils/build-user-list-query'
-import { createPlaceholderPage } from '../../../shared/components/placeholder-page'
 import {
-  VALID_USER_REPOSITORIES_PER_PAGE_OPTIONS,
-  type RepoSort,
-  type UserPageQuery,
-} from '../types/github-user.types'
+  getGitHubErrorMessage,
+} from '../utils/github-errors'
+import {
+  normalizeRepoSort,
+  normalizeSortDirection,
+  normalizeUserRepositoriesPerPage,
+} from '../utils/parse-user-list-query'
 
 export interface UserPageContent {
   query: UserPageQuery
 }
 
 export function createUserPage(content: UserPageContent): HTMLElement {
-  const query = content.query
+  const pageElement = document.createElement('section')
+  const store = createGitHubUserStore()
 
-  return createPlaceholderPage({
-    eyebrow: 'Rota do usuario',
-    title: `Rota do usuario carregada para "${query.username}".`,
-    description:
-      'A query da listagem agora e lida, normalizada e reconstruida a partir da URL antes de a pagina consumir o estado.',
-    actions: [
-      {
-        href: buildUserListRouteWithPatch(query, { page: query.page + 1 }),
-        label: 'Ir para proxima pagina',
-        variant: 'primary',
-      },
-      {
-        href: buildUserListRouteWithPatch(query, { sort: getAlternativeSort(query.sort) }),
-        label: 'Trocar ordenacao',
-        variant: 'secondary',
-      },
-      {
-        href: buildUserListRouteWithPatch(query, {
-          direction: query.direction === 'asc' ? 'desc' : 'asc',
+  pageElement.className = 'user-page'
+
+  initializeUserPageStore(store, content.query)
+
+  const unsubscribe = store.subscribe(function handleStateChange(state: UserPageState): void {
+    renderUserPage(pageElement, state)
+  })
+
+  pageElement.addEventListener('change', handleFilterChange)
+
+  observeElementRemoval(pageElement, function handlePageRemoval(): void {
+    pageElement.removeEventListener('change', handleFilterChange)
+    unsubscribe()
+  })
+
+  renderUserPage(pageElement, store.getState())
+  void loadUserPageData(pageElement, store, content.query)
+
+  return pageElement
+
+  function handleFilterChange(event: Event): void {
+    const targetElement = event.target
+
+    if (!(targetElement instanceof HTMLSelectElement)) {
+      return
+    }
+
+    if (targetElement.dataset.filterControl === 'sort') {
+      navigate(
+        buildUserListRouteWithPatch(store.getState().query, {
+          sort: normalizeRepoSort(targetElement.value),
         }),
-        label: 'Inverter direcao',
-        variant: 'secondary',
-      },
-      {
-        href: buildUserListRouteWithPatch(query, {
-          perPage: getAlternativePerPage(query.perPage),
+      )
+      return
+    }
+
+    if (targetElement.dataset.filterControl === 'direction') {
+      navigate(
+        buildUserListRouteWithPatch(store.getState().query, {
+          direction: normalizeSortDirection(targetElement.value),
         }),
-        label: 'Trocar por pagina',
-        variant: 'secondary',
-      },
-    ],
-    details: [
-      {
-        title: 'Parametros da rota',
-        description: `Parametro de username resolvido: ${query.username}.`,
-      },
-      {
-        title: 'Query normalizada',
-        description: `?${buildUserListQuery(query)}`,
-      },
-      {
-        title: 'Controles atuais',
-        description: `page=${query.page}, perPage=${query.perPage}, sort=${query.sort}, direction=${query.direction}.`,
-      },
-      {
-        title: 'Regra de navegacao',
-        description:
-          'Trocar sort, direction ou perPage reseta a pagina para 1; mudar apenas a pagina preserva os outros parametros.',
-      },
-    ],
+      )
+      return
+    }
+
+    if (targetElement.dataset.filterControl === 'per-page') {
+      navigate(
+        buildUserListRouteWithPatch(store.getState().query, {
+          perPage: normalizeUserRepositoriesPerPage(targetElement.value),
+        }),
+      )
+    }
+  }
+}
+
+async function loadUserPageData(
+  pageElement: HTMLElement,
+  store: GitHubUserStore,
+  query: UserPageQuery,
+): Promise<void> {
+  const [userResult, repositoriesResult] = await Promise.allSettled([
+    getUserByUsername(query.username),
+    getUserRepositories(query),
+  ])
+
+  if (!shouldApplyPageResult(pageElement, store, query)) {
+    return
+  }
+
+  if (userResult.status === 'fulfilled') {
+    store.setUser(userResult.value)
+  } else {
+    store.setUserError(getGitHubErrorMessage(userResult.reason, 'user'))
+  }
+
+  if (repositoriesResult.status === 'fulfilled') {
+    store.setRepositoriesResult(repositoriesResult.value)
+  } else {
+    store.setRepositoriesError(
+      getGitHubErrorMessage(repositoriesResult.reason, 'repositories'),
+    )
+  }
+}
+
+function initializeUserPageStore(
+  store: GitHubUserStore,
+  query: UserPageQuery,
+): void {
+  store.setQuery(query)
+  store.setUserLoading()
+  store.setRepositoriesLoading()
+}
+
+function renderUserPage(
+  pageElement: HTMLElement,
+  state: UserPageState,
+): void {
+  pageElement.innerHTML = `
+    <div class="user-page-layout">
+      <aside class="user-page-sidebar">
+        ${createUserProfileSectionMarkup(state)}
+      </aside>
+      <div class="user-page-content">
+        ${createRepositoriesSectionMarkup(state)}
+        ${createPaginationSectionMarkup(state)}
+      </div>
+    </div>
+  `
+}
+
+function createUserProfileSectionMarkup(state: UserPageState): string {
+  if (state.data.loadingUser) {
+    return createUserProfileLoadingMarkup()
+  }
+
+  if (state.data.errorUser) {
+    return createErrorStateMarkup({
+      description: state.data.errorUser,
+      title: 'Nao foi possivel carregar o perfil.',
+    })
+  }
+
+  if (state.data.user) {
+    return createUserProfileCardMarkup(state.data.user)
+  }
+
+  return createEmptyStateMarkup({
+    description: 'Selecione um usuario valido para carregar as informacoes do perfil.',
+    title: 'Nenhum perfil foi carregado.',
   })
 }
 
-function getAlternativeSort(currentSort: RepoSort): RepoSort {
-  if (currentSort === 'updated') {
-    return 'created'
-  }
+function createRepositoriesSectionMarkup(state: UserPageState): string {
+  const filtersMarkup = createRepositoryFiltersMarkup({
+    pagination: state.pagination,
+    query: state.query,
+    repositoriesCount: state.data.repositories.length,
+  })
 
-  return 'updated'
+  return `
+    ${filtersMarkup}
+    <section class="user-section-card">
+      ${createRepositoriesBodyMarkup(state)}
+    </section>
+  `
 }
 
-function getAlternativePerPage(currentPerPage: number): number {
-  const currentIndex = VALID_USER_REPOSITORIES_PER_PAGE_OPTIONS.indexOf(currentPerPage)
-
-  if (currentIndex === -1) {
-    return VALID_USER_REPOSITORIES_PER_PAGE_OPTIONS[0]
+function createRepositoriesBodyMarkup(state: UserPageState): string {
+  if (state.data.loadingRepositories) {
+    return createLoadingRepositoryListMarkup()
   }
 
-  const nextIndex =
-    (currentIndex + 1) % VALID_USER_REPOSITORIES_PER_PAGE_OPTIONS.length
+  if (state.data.errorRepositories) {
+    return createErrorStateMarkup({
+      description: state.data.errorRepositories,
+      title: 'Nao foi possivel carregar os repositorios.',
+    })
+  }
 
-  return VALID_USER_REPOSITORIES_PER_PAGE_OPTIONS[nextIndex]
+  if (state.data.repositories.length === 0) {
+    return createEmptyStateMarkup({
+      description: `O usuario "${state.query.username}" ainda nao possui repositorios publicos para esta combinacao de filtros.`,
+      title: 'Nenhum repositorio foi encontrado.',
+    })
+  }
+
+  return createRepositoryListMarkup(state.data.repositories)
+}
+
+function createPaginationSectionMarkup(state: UserPageState): string {
+  if (state.data.loadingRepositories || state.data.errorRepositories) {
+    return ''
+  }
+
+  const paginationMarkup = createPaginationNavMarkup({
+    pagination: state.pagination,
+    query: state.query,
+  })
+
+  if (paginationMarkup === '') {
+    return ''
+  }
+
+  return `
+    <section class="user-section-card">
+      ${paginationMarkup}
+    </section>
+  `
+}
+
+function createUserProfileLoadingMarkup(): string {
+  return `
+    <section class="user-profile-card loading-card" aria-hidden="true">
+      <div class="user-profile-header">
+        <div class="loading-avatar"></div>
+        <div class="loading-stack">
+          <span class="loading-line loading-line--title"></span>
+          <span class="loading-line loading-line--medium"></span>
+        </div>
+      </div>
+      <div class="loading-stack">
+        <span class="loading-line"></span>
+        <span class="loading-line loading-line--medium"></span>
+      </div>
+      <div class="loading-profile-stats">
+        ${createLoadingStatMarkup()}
+        ${createLoadingStatMarkup()}
+        ${createLoadingStatMarkup()}
+        ${createLoadingStatMarkup()}
+      </div>
+      <div class="loading-stack">
+        <span class="loading-line"></span>
+        <span class="loading-line loading-line--short"></span>
+      </div>
+    </section>
+  `
+}
+
+function createLoadingRepositoryListMarkup(): string {
+  return `
+    <div class="repository-list">
+      ${createLoadingRepositoryCardMarkup()}
+      ${createLoadingRepositoryCardMarkup()}
+      ${createLoadingRepositoryCardMarkup()}
+    </div>
+  `
+}
+
+function createLoadingRepositoryCardMarkup(): string {
+  return `
+    <article class="repository-card loading-card" aria-hidden="true">
+      <div class="loading-stack">
+        <span class="loading-line loading-line--title"></span>
+        <span class="loading-line loading-line--medium"></span>
+        <span class="loading-line"></span>
+        <span class="loading-line loading-line--short"></span>
+      </div>
+    </article>
+  `
+}
+
+function createLoadingStatMarkup(): string {
+  return `
+    <div class="loading-stat">
+      <span class="loading-line loading-line--short"></span>
+      <span class="loading-line loading-line--medium"></span>
+    </div>
+  `
+}
+
+function shouldApplyPageResult(
+  pageElement: HTMLElement,
+  store: GitHubUserStore,
+  query: UserPageQuery,
+): boolean {
+  if (!pageElement.isConnected) {
+    return false
+  }
+
+  return isSameUserPageQuery(store.getState().query, query)
+}
+
+function isSameUserPageQuery(
+  leftQuery: UserPageQuery,
+  rightQuery: UserPageQuery,
+): boolean {
+  return (
+    leftQuery.direction === rightQuery.direction &&
+    leftQuery.page === rightQuery.page &&
+    leftQuery.perPage === rightQuery.perPage &&
+    leftQuery.sort === rightQuery.sort &&
+    leftQuery.username === rightQuery.username
+  )
 }

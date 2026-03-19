@@ -28,8 +28,12 @@ export function createGitHubUserStore(): GitHubUserStore {
   const store = createStore(createInitialUserPageState)
 
   function setQuery(query: UserPageQuery): void {
-    store.patchState({
-      query: query,
+    store.updateState(function updateState(state: UserPageState): UserPageState {
+      return {
+        ...state,
+        pagination: createEmptyPaginationMeta(query),
+        query: query,
+      }
     })
   }
 
@@ -112,7 +116,7 @@ export function createGitHubUserStore(): GitHubUserStore {
           loadingRepositories: false,
           repositories: [],
         },
-        pagination: createEmptyPaginationMeta(state.query.perPage),
+        pagination: createEmptyPaginationMeta(state.query),
       }
     })
   }
@@ -151,7 +155,7 @@ function createInitialUserPageState(): UserPageState {
       repositories: [],
       user: null,
     },
-    pagination: createEmptyPaginationMeta(initialQuery.perPage),
+    pagination: createEmptyPaginationMeta(initialQuery),
     query: initialQuery,
   }
 }
@@ -166,12 +170,12 @@ function createInitialUserPageQuery(): UserPageQuery {
   }
 }
 
-function createEmptyPaginationMeta(perPage: number): PaginationMeta {
+function createEmptyPaginationMeta(query: UserPageQuery): PaginationMeta {
   return {
-    currentPage: DEFAULT_USER_PAGE,
+    currentPage: query.page,
     hasNextPage: false,
-    hasPreviousPage: false,
-    perPage: perPage,
-    totalPages: 0,
+    hasPreviousPage: query.page > DEFAULT_USER_PAGE,
+    perPage: query.perPage,
+    totalPages: Math.max(query.page, 1),
   }
 }

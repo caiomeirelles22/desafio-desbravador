@@ -1,3 +1,5 @@
+import { escapeHtml } from '../utils/dom'
+
 export interface PlaceholderAction {
   href: string
   label: string
@@ -89,13 +91,4 @@ function createNoteMarkup(note?: string): string {
   }
 
   return `<p class="page-note">${escapeHtml(note)}</p>`
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
 }
