@@ -1,1 +1,31 @@
-/* Visual tokens will be introduced in the design-system step. */
+:root {
+  --color-bg: #f3efe7;
+  --color-surface: rgba(255, 253, 248, 0.86);
+  --color-surface-strong: #fffdf8;
+  --color-text: #14213d;
+  --color-muted: #52606d;
+  --color-primary: #0f766e;
+  --color-primary-strong: #115e59;
+  --color-accent: #f4a261;
+  --color-border: rgba(20, 33, 61, 0.12);
+  --shadow-lg: 0 24px 64px rgba(20, 33, 61, 0.14);
+  --shadow-sm: 0 12px 32px rgba(20, 33, 61, 0.08);
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --content-max-width: 1120px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --font-sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
