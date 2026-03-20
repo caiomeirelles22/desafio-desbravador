@@ -721,6 +721,203 @@ textarea {
   font-size: 0.94rem;
 }
 
+.repository-page-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 0.8fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.repository-main-card,
+.repository-sidebar-card {
+  padding: var(--space-6);
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 250, 245, 0.82)),
+    var(--color-surface-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.repository-main-card {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.repository-sidebar-card {
+  position: sticky;
+  top: var(--space-4);
+  display: grid;
+  gap: var(--space-5);
+}
+
+.repository-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.repository-hero-copy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.repository-hero-full-name {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.repository-hero-actions {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: stretch;
+}
+
+.favorite-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 3rem;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid rgba(15, 118, 110, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-primary-strong);
+  font-weight: 700;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.favorite-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 118, 110, 0.28);
+  background: rgba(15, 118, 110, 0.08);
+}
+
+.favorite-button.is-active {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--color-accent), #ea580c);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.favorite-button-icon {
+  font-size: 1rem;
+}
+
+.repository-metrics-grid,
+.repository-info-grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.repository-metrics-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.repository-info-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.repository-metric-card,
+.repository-info-card,
+.repository-topics-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(15, 118, 110, 0.05), transparent),
+    rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(15, 118, 110, 0.1);
+}
+
+.repository-metric-card,
+.repository-info-card {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.repository-metric-label,
+.repository-info-label {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.repository-metric-value,
+.repository-info-value {
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.repository-info-value {
+  font-size: 1rem;
+}
+
+.repository-topics-card {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.repository-topics-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.repository-topic {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.12);
+  color: var(--color-primary-strong);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.repository-sidebar-section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.repository-sidebar-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.repository-sidebar-item {
+  display: grid;
+  gap: 0.3rem;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(20, 33, 61, 0.08);
+}
+
+.repository-sidebar-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.repository-sidebar-item dt {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.repository-sidebar-item dd {
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
 .pagination-nav {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -899,11 +1096,13 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .user-page-layout {
+  .user-page-layout,
+  .repository-page-layout {
     grid-template-columns: 1fr;
   }
 
-  .user-profile-card {
+  .user-profile-card,
+  .repository-sidebar-card {
     position: static;
   }
 
@@ -913,7 +1112,9 @@ textarea {
 
   .search-input-row,
   .home-suggestions-grid,
-  .repository-filters {
+  .repository-filters,
+  .repository-metrics-grid,
+  .repository-info-grid {
     grid-template-columns: 1fr;
   }
 
@@ -924,7 +1125,8 @@ textarea {
   .user-profile-header,
   .user-section-header,
   .repository-card-header,
-  .pagination-nav {
+  .pagination-nav,
+  .repository-hero {
     display: grid;
     grid-template-columns: 1fr;
   }
