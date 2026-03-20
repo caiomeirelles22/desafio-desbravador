@@ -29,3 +29,18 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+:root[data-bs-theme='dark'] {
+  --color-bg: #111827;
+  --color-surface: rgba(17, 24, 39, 0.86);
+  --color-surface-strong: #182233;
+  --color-text: #e5eef9;
+  --color-muted: #9db0c7;
+  --color-primary: #2dd4bf;
+  --color-primary-strong: #7dd3fc;
+  --color-accent: #fb923c;
+  --color-border: rgba(125, 211, 252, 0.18);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.38);
+  --shadow-sm: 0 12px 32px rgba(0, 0, 0, 0.28);
+  color-scheme: dark;
+}

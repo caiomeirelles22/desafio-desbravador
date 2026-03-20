@@ -1,3 +1,5 @@
+import { createThemeToggleMarkup } from '../features/theme/components/theme-toggle'
+import { themeStore } from '../features/theme/stores/theme.store'
 import { navigate } from '../router/navigation'
 import { createRouter } from '../router/router'
 
@@ -10,7 +12,13 @@ export function createApp(rootElement: HTMLElement): void {
   const appElements = createAppShell()
   const router = createRouter(appElements.routeViewElement, appElements.shellElement)
 
+  themeStore.hydrateThemeMode()
+  renderThemeToggle(appElements.shellElement)
   appElements.shellElement.addEventListener('click', handleNavigationClick)
+  appElements.shellElement.addEventListener('click', handleThemeToggleClick)
+  themeStore.subscribe(function handleThemeChange(): void {
+    renderThemeToggle(appElements.shellElement)
+  })
 
   rootElement.classList.add('app-root')
   rootElement.replaceChildren(appElements.shellElement)
@@ -30,10 +38,13 @@ function createAppShell(): AppElements {
             <span class="brand-mark">GH</span>
             <span class="brand-text">GitHub User Explorer</span>
           </a>
-          <nav class="app-nav" aria-label="Principal">
-            <a class="nav-link" href="/" data-link data-nav-route="home">Inicio</a>
-            <a class="nav-link" href="/favorites" data-link data-nav-route="favorites">Favoritos</a>
-          </nav>
+          <div class="app-toolbar">
+            <nav class="app-nav" aria-label="Principal">
+              <a class="nav-link" href="/" data-link data-nav-route="home">Inicio</a>
+              <a class="nav-link" href="/favorites" data-link data-nav-route="favorites">Favoritos</a>
+            </nav>
+            <div data-theme-toggle-slot></div>
+          </div>
         </div>
         <div class="hero-panel">
           <span class="hero-eyebrow">Vanilla TypeScript + API do GitHub</span>
@@ -57,10 +68,24 @@ function createAppShell(): AppElements {
     throw new Error('Route view container "[data-route-view]" was not found.')
   }
 
+  renderThemeToggle(shellElement)
+
   return {
     shellElement,
     routeViewElement,
   }
+}
+
+function renderThemeToggle(shellElement: HTMLElement): void {
+  const themeToggleSlot = shellElement.querySelector<HTMLElement>('[data-theme-toggle-slot]')
+
+  if (!themeToggleSlot) {
+    return
+  }
+
+  themeToggleSlot.innerHTML = createThemeToggleMarkup({
+    mode: themeStore.getState().mode,
+  })
 }
 
 function handleNavigationClick(event: MouseEvent): void {
@@ -88,6 +113,22 @@ function handleNavigationClick(event: MouseEvent): void {
 
   event.preventDefault()
   navigate(targetUrl.pathname + targetUrl.search + targetUrl.hash)
+}
+
+function handleThemeToggleClick(event: MouseEvent): void {
+  const targetElement = event.target
+
+  if (!(targetElement instanceof Element)) {
+    return
+  }
+
+  const themeToggleElement = targetElement.closest('[data-theme-toggle]')
+
+  if (!themeToggleElement) {
+    return
+  }
+
+  themeStore.toggleThemeMode()
 }
 
 function shouldHandleNavigation(
