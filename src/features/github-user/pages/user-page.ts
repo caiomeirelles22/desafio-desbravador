@@ -1,3 +1,7 @@
+import {
+  favoritesStore,
+  type FavoriteRepository,
+} from '../../favorites/stores/favorites.store'
 import { navigate } from '../../../router/navigation'
 import { observeElementRemoval } from '../../../shared/utils/dom'
 import {
@@ -52,17 +56,24 @@ export function createUserPage(content: UserPageContent): HTMLElement {
 
   pageElement.className = 'user-page'
 
+  favoritesStore.hydrateFavoriteRepositories()
   initializeUserPageStore(store, content.query)
 
-  const unsubscribe = store.subscribe(function handleStateChange(state: UserPageState): void {
+  const unsubscribeStore = store.subscribe(function handleStateChange(state: UserPageState): void {
     renderUserPage(pageElement, state)
+  })
+  const unsubscribeFavorites = favoritesStore.subscribe(function handleFavoritesState(): void {
+    renderUserPage(pageElement, store.getState())
   })
 
   pageElement.addEventListener('change', handleFilterChange)
+  pageElement.addEventListener('click', handlePageClick)
 
   observeElementRemoval(pageElement, function handlePageRemoval(): void {
     pageElement.removeEventListener('change', handleFilterChange)
-    unsubscribe()
+    pageElement.removeEventListener('click', handlePageClick)
+    unsubscribeStore()
+    unsubscribeFavorites()
   })
 
   renderUserPage(pageElement, store.getState())
@@ -102,6 +113,40 @@ export function createUserPage(content: UserPageContent): HTMLElement {
         }),
       )
     }
+  }
+
+  function handlePageClick(event: MouseEvent): void {
+    const targetElement = event.target
+
+    if (!(targetElement instanceof Element)) {
+      return
+    }
+
+    const favoriteButtonElement = targetElement.closest<HTMLElement>(
+      '[data-favorite-repository]',
+    )
+
+    if (!favoriteButtonElement) {
+      return
+    }
+
+    const fullName = favoriteButtonElement.dataset.favoriteRepository
+
+    if (!fullName) {
+      return
+    }
+
+    const repository = store.getState().data.repositories.find(
+      function findRepository(currentRepository): boolean {
+        return currentRepository.fullName === fullName
+      },
+    )
+
+    if (!repository) {
+      return
+    }
+
+    favoritesStore.toggleFavoriteRepository(mapFavoriteRepository(repository))
   }
 }
 
@@ -298,6 +343,20 @@ function createLoadingStatMarkup(): string {
       <span class="loading-line loading-line--medium"></span>
     </div>
   `
+}
+
+function mapFavoriteRepository(
+  repository: UserPageState['data']['repositories'][number],
+): FavoriteRepository {
+  return {
+    fullName: repository.fullName,
+    htmlUrl: repository.htmlUrl,
+    id: repository.id,
+    language: repository.language,
+    name: repository.name,
+    ownerLogin: repository.owner.login,
+    stargazersCount: repository.stargazersCount,
+  }
 }
 
 function shouldApplyPageResult(

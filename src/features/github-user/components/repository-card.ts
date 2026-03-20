@@ -1,3 +1,5 @@
+import { createFavoriteButtonMarkup } from '../../favorites/components/favorite-button'
+import { favoritesStore } from '../../favorites/stores/favorites.store'
 import { escapeHtml } from '../../../shared/utils/dom'
 import { formatDate, formatNumber } from '../../../shared/utils/formatters'
 import type { GitHubRepository } from '../types/repository.types'
@@ -21,8 +23,16 @@ export function createRepositoryCardMarkup(repository: GitHubRepository): string
           </a>
           <p class="repository-card-full-name">${escapeHtml(repository.fullName)}</p>
         </div>
-        <div class="repository-card-badges">
+        <div class="repository-card-actions">
+          ${createFavoriteButtonMarkup({
+            isActive: favoritesStore.hasFavoriteRepository(repository.fullName),
+          }).replace(
+            'data-favorite-toggle',
+            `data-favorite-repository="${escapeHtml(repository.fullName)}"`,
+          )}
+          <div class="repository-card-badges">
           ${badges}
+          </div>
         </div>
       </div>
       <p class="repository-card-description">${description}</p>

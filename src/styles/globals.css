@@ -696,6 +696,12 @@ textarea {
   gap: var(--space-2);
 }
 
+.repository-card-actions {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: end;
+}
+
 .repository-badge {
   display: inline-flex;
   align-items: center;
@@ -918,6 +924,64 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.favorites-shell,
+.favorites-list {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.favorites-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+  gap: var(--space-5);
+}
+
+.favorites-hero-copy,
+.favorites-summary-card {
+  padding: var(--space-6);
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 250, 245, 0.82)),
+    var(--color-surface-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.favorites-hero-copy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.favorites-summary-card {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.favorites-summary-label {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.favorites-summary-value {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.favorite-repository-card {
+  gap: var(--space-5);
+}
+
+.favorite-repository-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
 .pagination-nav {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1135,6 +1199,10 @@ textarea {
     justify-content: flex-start;
   }
 
+  .favorites-hero {
+    grid-template-columns: 1fr;
+  }
+
   .user-profile-stats,
   .loading-profile-stats {
     grid-template-columns: 1fr;
@@ -1145,6 +1213,10 @@ textarea {
   }
 
   .page-actions {
+    flex-direction: column;
+  }
+
+  .favorite-repository-actions {
     flex-direction: column;
   }
 

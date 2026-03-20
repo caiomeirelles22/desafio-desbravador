@@ -1,3 +1,4 @@
+import { createFavoritesPage } from '../features/favorites/pages/favorites-page'
 import { createRepositoryPage } from '../features/github-user/pages/repository-page'
 import { createHomePage } from '../features/github-user/pages/home-page'
 import { createUserPage } from '../features/github-user/pages/user-page'
@@ -144,41 +145,7 @@ function createRepositoryRoutePage(context: RouteContext): HTMLElement {
 }
 
 function createFavoritesRoutePage(): HTMLElement {
-  return createPlaceholderPage({
-    eyebrow: 'Rota de favoritos',
-    title: 'A rota opcional de favoritos ja esta mapeada.',
-    description:
-      'Essa rota entra cedo para que a estrutura de navegacao nao precise mudar quando a persistencia de favoritos for ligada.',
-    actions: [
-      {
-        href: '/',
-        label: 'Voltar para o inicio',
-        variant: 'primary',
-      },
-      {
-        href: '/user/octocat',
-        label: 'Abrir usuario de exemplo',
-        variant: 'secondary',
-      },
-    ],
-    details: [
-      {
-        title: 'Padrao da rota',
-        description: 'A pagina de favoritos esta mapeada em "/favorites".',
-      },
-      {
-        title: 'Motivacao',
-        description:
-          'Manter essa rota agora evita trocar o contrato de navegacao mais tarde.',
-      },
-      {
-        title: 'Proxima etapa',
-        description:
-          'A pagina vai renderizar depois os repositorios persistidos no armazenamento local.',
-      },
-    ],
-    note: 'A persistencia de favoritos sera implementada na etapa dedicada da feature.',
-  })
+  return createFavoritesPage()
 }
 
 function createNotFoundRoutePage(context: RouteContext): HTMLElement {
