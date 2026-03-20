@@ -76,7 +76,7 @@ textarea {
 }
 
 .app-header {
-  padding: var(--space-8) 0 var(--space-6);
+  padding: var(--space-6) 0 var(--space-5);
 }
 
 .app-topbar {
@@ -198,7 +198,9 @@ textarea {
 }
 
 .hero-panel {
-  padding: var(--space-7);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: var(--radius-lg);
   background:
@@ -231,11 +233,10 @@ textarea {
 }
 
 .hero-title {
-  max-width: 12ch;
-  margin-top: var(--space-4);
-  font-size: clamp(2.75rem, 7vw, 5.5rem);
-  font-weight: 800;
-  letter-spacing: -0.05em;
+  max-width: 18ch;
+  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
 }
 
 .hero-description,
@@ -247,9 +248,9 @@ textarea {
 }
 
 .hero-description {
-  max-width: 42rem;
-  margin-top: var(--space-4);
-  font-size: 1.05rem;
+  max-width: 34rem;
+  font-size: 0.98rem;
+  line-height: 1.6;
 }
 
 .app-main {
@@ -360,18 +361,13 @@ textarea {
 }
 
 .home-page {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.95fr);
-  gap: var(--space-5);
-}
-
-.home-search-panel,
-.home-insights {
-  display: grid;
-  gap: var(--space-5);
+  display: block;
 }
 
 .home-search-panel {
+  display: grid;
+  gap: var(--space-5);
+  width: min(100%, 52rem);
   padding: var(--space-7);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -487,16 +483,6 @@ textarea {
   line-height: 1.55;
 }
 
-.home-insight-card {
-  padding: var(--space-5);
-  border: 1px solid rgba(15, 118, 110, 0.12);
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(180deg, rgba(15, 118, 110, 0.05), rgba(255, 255, 255, 0.72)),
-    rgba(255, 255, 255, 0.82);
-  box-shadow: var(--shadow-sm);
-}
-
 .user-page-layout {
   display: grid;
   grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
@@ -559,6 +545,16 @@ textarea {
   gap: var(--space-2);
 }
 
+.user-profile-copy {
+  min-width: 0;
+}
+
+.user-profile-identity {
+  min-width: 0;
+  display: grid;
+  align-items: center;
+}
+
 .user-profile-name,
 .status-card-title,
 .user-section-title {
@@ -566,9 +562,12 @@ textarea {
 }
 
 .user-profile-name {
-  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  font-size: clamp(1.55rem, 2.8vw, 2rem);
   line-height: 1.05;
   letter-spacing: -0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-profile-login,
@@ -580,7 +579,9 @@ textarea {
 }
 
 .user-profile-login {
+  font-size: 1rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .user-profile-bio,
@@ -1220,7 +1221,6 @@ textarea {
 
 :root[data-bs-theme='dark'] .page-card,
 :root[data-bs-theme='dark'] .home-suggestion,
-:root[data-bs-theme='dark'] .home-insight-card,
 :root[data-bs-theme='dark'] .user-profile-stat,
 :root[data-bs-theme='dark'] .loading-stat,
 :root[data-bs-theme='dark'] .repository-card,
@@ -1268,10 +1268,6 @@ textarea {
   .hero-panel,
   .page-panel {
     padding: var(--space-5);
-  }
-
-  .home-page {
-    grid-template-columns: 1fr;
   }
 
   .user-page-layout,

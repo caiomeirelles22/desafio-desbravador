@@ -17,6 +17,10 @@ export function createUserProfileCardMarkup(user: GitHubUser): string {
 
   return `
     <section class="user-profile-card">
+      <div class="user-profile-copy">
+        <span class="section-kicker">Perfil</span>
+        <h2 class="user-profile-name">${escapeHtml(user.name ?? user.login)}</h2>
+      </div>
       <div class="user-profile-header">
         <img
           class="user-profile-avatar"
@@ -25,9 +29,7 @@ export function createUserProfileCardMarkup(user: GitHubUser): string {
           width="104"
           height="104"
         />
-        <div class="user-profile-copy">
-          <span class="section-kicker">Perfil</span>
-          <h2 class="user-profile-name">${escapeHtml(user.name ?? user.login)}</h2>
+        <div class="user-profile-identity">
           <p class="user-profile-login">@${escapeHtml(user.login)}</p>
         </div>
       </div>

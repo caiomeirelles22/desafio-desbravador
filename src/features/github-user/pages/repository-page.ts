@@ -7,6 +7,10 @@ import { escapeHtml, observeElementRemoval } from '../../../shared/utils/dom'
 import { formatDate, formatNumber } from '../../../shared/utils/formatters'
 import { createEmptyStateMarkup } from '../components/empty-state'
 import { createErrorStateMarkup } from '../components/error-state'
+import {
+  createRepositoryDetailsSkeletonMarkup,
+  createRepositorySidebarSkeletonMarkup,
+} from '../components/skeletons'
 import { getRepositoryDetails } from '../services/github.service'
 import {
   createRepositoryDetailsStore,
@@ -121,13 +125,15 @@ function createRepositoryMainSectionMarkup(
   errorMessage: string | null,
 ): string {
   if (isLoading) {
-    return createRepositoryLoadingMarkup()
+    return createRepositoryDetailsSkeletonMarkup()
   }
 
   if (errorMessage) {
     return `
       <section class="repository-main-card">
         ${createErrorStateMarkup({
+          actionHref: `/user/${encodeURIComponent(content.owner)}`,
+          actionLabel: 'Voltar para o usuario',
           description: errorMessage,
           title: 'Nao foi possivel carregar o repositorio.',
         })}
@@ -139,6 +145,8 @@ function createRepositoryMainSectionMarkup(
     return `
       <section class="repository-main-card">
         ${createEmptyStateMarkup({
+          actionHref: '/',
+          actionLabel: 'Ir para o inicio',
           description: `Nenhum detalhe foi encontrado para "${content.owner}/${content.repositoryName}".`,
           title: 'Repositorio indisponivel.',
         })}
@@ -207,20 +215,7 @@ function createRepositorySidebarMarkup(
   errorMessage: string | null,
 ): string {
   if (isLoading) {
-    return `
-      <aside class="repository-sidebar-card loading-card" aria-hidden="true">
-        <div class="loading-stack">
-          <span class="loading-line loading-line--title"></span>
-          <span class="loading-line"></span>
-          <span class="loading-line loading-line--medium"></span>
-        </div>
-        <div class="loading-stack">
-          <span class="loading-line"></span>
-          <span class="loading-line"></span>
-          <span class="loading-line loading-line--short"></span>
-        </div>
-      </aside>
-    `
+    return createRepositorySidebarSkeletonMarkup()
   }
 
   if (errorMessage || !repository) {
@@ -298,50 +293,6 @@ function createSidebarItemMarkup(label: string, value: string): string {
     <div class="repository-sidebar-item">
       <dt>${escapeHtml(label)}</dt>
       <dd>${escapeHtml(value)}</dd>
-    </div>
-  `
-}
-
-function createRepositoryLoadingMarkup(): string {
-  return `
-    <section class="repository-main-card loading-card" aria-hidden="true">
-      <div class="loading-stack">
-        <span class="loading-line loading-line--short"></span>
-        <span class="loading-line loading-line--title"></span>
-        <span class="loading-line loading-line--medium"></span>
-        <span class="loading-line"></span>
-        <span class="loading-line"></span>
-      </div>
-      <div class="repository-metrics-grid">
-        ${createLoadingMetricMarkup()}
-        ${createLoadingMetricMarkup()}
-        ${createLoadingMetricMarkup()}
-        ${createLoadingMetricMarkup()}
-      </div>
-      <div class="repository-info-grid">
-        ${createLoadingInfoMarkup()}
-        ${createLoadingInfoMarkup()}
-        ${createLoadingInfoMarkup()}
-        ${createLoadingInfoMarkup()}
-      </div>
-    </section>
-  `
-}
-
-function createLoadingMetricMarkup(): string {
-  return `
-    <div class="repository-metric-card">
-      <span class="loading-line loading-line--short"></span>
-      <span class="loading-line loading-line--medium"></span>
-    </div>
-  `
-}
-
-function createLoadingInfoMarkup(): string {
-  return `
-    <div class="repository-info-card">
-      <span class="loading-line loading-line--short"></span>
-      <span class="loading-line"></span>
     </div>
   `
 }

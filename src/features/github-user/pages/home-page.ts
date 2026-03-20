@@ -23,7 +23,7 @@ interface HomeSuggestion {
 const HOME_SUGGESTIONS: HomeSuggestion[] = [
   {
     description: 'Conta de exemplo usada na maioria dos exemplos da API do GitHub.',
-    username: 'octocat',
+    username: 'caiomeirelles22',
   },
   {
     description: 'Perfil publico da organizacao da OpenAI.',
@@ -43,9 +43,9 @@ export function createHomePage(): HTMLElement {
     <div class="home-search-panel">
       <div class="home-copy">
         <span class="section-kicker">Inicio</span>
-        <h2 class="section-title">Busque qualquer usuario do GitHub e va direto para a rota do perfil.</h2>
+        <h2 class="section-title">Encontre perfis do GitHub de um jeito simples.</h2>
         <p class="section-description">
-          O campo abaixo valida o usuario antes da navegacao e continua aceitando envio explicito com Enter.
+          Digite um nome de usuario para abrir o perfil e explorar os repositorios publicos.
         </p>
       </div>
       <form class="search-form" novalidate>
@@ -56,7 +56,7 @@ export function createHomePage(): HTMLElement {
             class="search-input"
             name="username"
             type="search"
-            placeholder="octocat"
+            placeholder="caiomeirelles22"
             autocomplete="off"
             autocapitalize="none"
             spellcheck="false"
@@ -70,7 +70,7 @@ export function createHomePage(): HTMLElement {
           role="status"
           aria-live="polite"
         >
-          A navegacao comeca automaticamente apos ${DEBOUNCE_DELAY_MS}ms de inatividade.
+          Digite um nome de usuario valido ou pressione Enter para buscar.
         </p>
       </form>
       <div class="home-suggestions">
@@ -79,26 +79,6 @@ export function createHomePage(): HTMLElement {
           ${HOME_SUGGESTIONS.map(createSuggestionMarkup).join('')}
         </div>
       </div>
-    </div>
-    <div class="home-insights">
-      <article class="home-insight-card">
-        <h3 class="page-card-title">Validacao com debounce</h3>
-        <p class="page-card-description">
-          A digitacao espera ${DEBOUNCE_DELAY_MS / 1000} segundos antes de o app verificar se o usuario existe.
-        </p>
-      </article>
-      <article class="home-insight-card">
-        <h3 class="page-card-title">Navegacao protegida</h3>
-        <p class="page-card-description">
-          A rota muda so depois que o GitHub confirma que o usuario existe, entao nomes invalidos continuam na home.
-        </p>
-      </article>
-      <article class="home-insight-card">
-        <h3 class="page-card-title">Fluxo amigavel ao teclado</h3>
-        <p class="page-card-description">
-          Pressione Enter a qualquer momento para pular a espera e validar imediatamente com o mesmo usuario normalizado.
-        </p>
-      </article>
     </div>
   `
 
@@ -151,7 +131,7 @@ export function createHomePage(): HTMLElement {
       debouncedNavigate.cancel()
       setSearchFeedback(
         feedbackElement,
-        `A navegacao comeca automaticamente apos ${DEBOUNCE_DELAY_MS}ms de inatividade.`,
+        'Digite um nome de usuario valido ou pressione Enter para buscar.',
         false,
       )
       return
@@ -169,7 +149,7 @@ export function createHomePage(): HTMLElement {
 
     setSearchFeedback(
       feedbackElement,
-      `Aguardando ${DEBOUNCE_DELAY_MS}ms antes de verificar "${username}". Pressione Enter para verificar agora.`,
+      'Buscando perfil...',
       false,
     )
     debouncedNavigate(username, latestSearchToken)
@@ -240,7 +220,7 @@ async function validateAndNavigateToUserPage(
     }
 
     navigate(buildRouteForUsername(username))
-    setSearchFeedback(feedbackElement, `Abrindo "${username}"...`, false)
+    setSearchFeedback(feedbackElement, 'Abrindo perfil...', false)
   } catch (error: unknown) {
     if (!shouldApplySearchResult(searchToken, inputElement, pageElement, username)) {
       return
@@ -249,7 +229,7 @@ async function validateAndNavigateToUserPage(
     if (isApiError(error) && error.status === 404) {
       setSearchFeedback(
         feedbackElement,
-        `O usuario "${username}" nao foi encontrado no GitHub. Fique aqui e tente outro nome.`,
+        'Nao encontramos esse usuario. Confira o nome e tente novamente.',
         true,
       )
       return

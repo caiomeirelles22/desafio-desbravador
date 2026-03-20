@@ -17,6 +17,10 @@ import {
   createRepositoryFiltersMarkup,
 } from '../components/repository-filters'
 import {
+  createRepositoryListSkeletonMarkup,
+  createUserProfileSkeletonMarkup,
+} from '../components/skeletons'
+import {
   createRepositoryListMarkup,
 } from '../components/repository-list'
 import {
@@ -212,6 +216,8 @@ function createUserProfileSectionMarkup(state: UserPageState): string {
 
   if (state.data.errorUser) {
     return createErrorStateMarkup({
+      actionHref: '/',
+      actionLabel: 'Voltar para o inicio',
       description: state.data.errorUser,
       title: 'Nao foi possivel carregar o perfil.',
     })
@@ -222,6 +228,8 @@ function createUserProfileSectionMarkup(state: UserPageState): string {
   }
 
   return createEmptyStateMarkup({
+    actionHref: '/',
+    actionLabel: 'Ir para a busca',
     description: 'Selecione um usuario valido para carregar as informacoes do perfil.',
     title: 'Nenhum perfil foi carregado.',
   })
@@ -244,11 +252,13 @@ function createRepositoriesSectionMarkup(state: UserPageState): string {
 
 function createRepositoriesBodyMarkup(state: UserPageState): string {
   if (state.data.loadingRepositories) {
-    return createLoadingRepositoryListMarkup()
+    return createRepositoryListSkeletonMarkup()
   }
 
   if (state.data.errorRepositories) {
     return createErrorStateMarkup({
+      actionHref: `/user/${encodeURIComponent(state.query.username)}`,
+      actionLabel: 'Tentar novamente',
       description: state.data.errorRepositories,
       title: 'Nao foi possivel carregar os repositorios.',
     })
@@ -256,6 +266,8 @@ function createRepositoriesBodyMarkup(state: UserPageState): string {
 
   if (state.data.repositories.length === 0) {
     return createEmptyStateMarkup({
+      actionHref: '/favorites',
+      actionLabel: 'Abrir favoritos',
       description: `O usuario "${state.query.username}" ainda nao possui repositorios publicos para esta combinacao de filtros.`,
       title: 'Nenhum repositorio foi encontrado.',
     })
@@ -286,63 +298,7 @@ function createPaginationSectionMarkup(state: UserPageState): string {
 }
 
 function createUserProfileLoadingMarkup(): string {
-  return `
-    <section class="user-profile-card loading-card" aria-hidden="true">
-      <div class="user-profile-header">
-        <div class="loading-avatar"></div>
-        <div class="loading-stack">
-          <span class="loading-line loading-line--title"></span>
-          <span class="loading-line loading-line--medium"></span>
-        </div>
-      </div>
-      <div class="loading-stack">
-        <span class="loading-line"></span>
-        <span class="loading-line loading-line--medium"></span>
-      </div>
-      <div class="loading-profile-stats">
-        ${createLoadingStatMarkup()}
-        ${createLoadingStatMarkup()}
-        ${createLoadingStatMarkup()}
-        ${createLoadingStatMarkup()}
-      </div>
-      <div class="loading-stack">
-        <span class="loading-line"></span>
-        <span class="loading-line loading-line--short"></span>
-      </div>
-    </section>
-  `
-}
-
-function createLoadingRepositoryListMarkup(): string {
-  return `
-    <div class="repository-list">
-      ${createLoadingRepositoryCardMarkup()}
-      ${createLoadingRepositoryCardMarkup()}
-      ${createLoadingRepositoryCardMarkup()}
-    </div>
-  `
-}
-
-function createLoadingRepositoryCardMarkup(): string {
-  return `
-    <article class="repository-card loading-card" aria-hidden="true">
-      <div class="loading-stack">
-        <span class="loading-line loading-line--title"></span>
-        <span class="loading-line loading-line--medium"></span>
-        <span class="loading-line"></span>
-        <span class="loading-line loading-line--short"></span>
-      </div>
-    </article>
-  `
-}
-
-function createLoadingStatMarkup(): string {
-  return `
-    <div class="loading-stat">
-      <span class="loading-line loading-line--short"></span>
-      <span class="loading-line loading-line--medium"></span>
-    </div>
-  `
+  return createUserProfileSkeletonMarkup()
 }
 
 function mapFavoriteRepository(

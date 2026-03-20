@@ -48,9 +48,9 @@ function createAppShell(): AppElements {
         </div>
         <div class="hero-panel">
           <span class="hero-eyebrow">Vanilla TypeScript + API do GitHub</span>
-          <h1 class="hero-title">Busque usuarios e explore repositorios em uma aplicacao client-side leve.</h1>
+          <h1 class="hero-title">Explore usuarios e repositorios do GitHub.</h1>
           <p class="hero-description">
-            O shell, o roteamento e a camada de dados ja estao no lugar, e cada proxima tela entra no mesmo fluxo guiado por URL.
+            Busca, detalhes, favoritos e tema persistido em um fluxo simples guiado por URL.
           </p>
         </div>
       </div>

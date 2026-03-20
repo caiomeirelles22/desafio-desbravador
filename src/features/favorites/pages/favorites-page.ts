@@ -90,6 +90,8 @@ function renderFavoritesPage(pageElement: HTMLElement): void {
 function createFavoritesBodyMarkup(repositories: FavoriteRepository[]): string {
   if (repositories.length === 0) {
     return createEmptyStateMarkup({
+      actionHref: '/',
+      actionLabel: 'Buscar usuarios',
       description:
         'Favorite um repositorio na listagem do usuario ou na pagina de detalhe para ele aparecer aqui.',
       title: 'Nenhum repositorio foi salvo ainda.',
